@@ -1,0 +1,10 @@
+.htaccess
+.gitlab-ci.yml
+.gitmodules
+.env
+wp-config-extra.php
+docker-compose.yml
+db/
+fix-perm
+README.md
+doc/

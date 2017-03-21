@@ -1,0 +1,40 @@
+image: debian:jessie
+
+stages:
+  - deploy
+
+deploy to wpengine staging:
+  type: deploy
+  image: utulsa/wpe-deploy:latest
+  environment:
+    name: wpe-staging
+    url: https://utulsaedu.staging.wpengine.com
+  only:
+    - staging
+  variables:
+    WPE_REMOTE_URL: git@git.wpengine.com:staging/utulsaedu.git
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - source setup-ssh
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+  script:
+    - run-deploy
+
+deploy to wpengine prod:
+  type: deploy
+  image: utulsa/wpe-deploy:latest
+  only:
+    - production
+  environment:
+    name: wpe-production
+    url: https://utulsa.edu
+  variables:
+    WPE_REMOTE_URL: git@git.wpengine.com:production/utulsaedu.git
+    GIT_SUBMODULE_STRATEGY: recursive
+  before_script:
+    - source setup-ssh
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+  script:
+    - run-deploy
