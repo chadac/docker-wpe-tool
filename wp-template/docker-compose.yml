@@ -10,10 +10,10 @@ services:
       DB_NAME: "db"
       DB_USER: "utulsa"
       DB_PASSWORD: "utulsa"
-      DB_CHARSET: "${wp.db_charset}"
-      DB_COLLATE: "${wp.db_collate}"
-      TABLE_PREFIX: "${wp.table_prefix}"
-      MULTISITE_CONFIG: "${wp.multisite_config}"
+      DB_CHARSET: "${wp_db_charset}"
+      DB_COLLATE: "${wp_db_collate}"
+      TABLE_PREFIX: "${wp_table_prefix}"
+      MULTISITE_CONFIG: "${wp_multisite_config}"
     volumes:
       - ./.htaccess:/var/www/html/.htaccess
       - ./wp-config-extra.php:/var/www/html/wp-config-extra.php

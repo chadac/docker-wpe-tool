@@ -10,8 +10,9 @@ LABEL description="Manages WPEngine installations for our website."
 ADD entrypoint.py /app/entrypoint.py
 RUN chmod 777 /app/entrypoint.py
 
-## Add additional commands
+## Add library stuff
 ADD scripts /app/scripts
+ADD lib /app/lib
 
 ## Add the Wordpress template files
 ADD wp-template /app/wp-template

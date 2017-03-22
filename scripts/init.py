@@ -6,18 +6,17 @@ from string import Template
 def run(args):
     print("Initializing a WPEngine install...")
 
-    from scripts import configure
+    from lib import configure
     settings = configure.init_settings()
 
-
     try:
-        install_dir = "volume/" + input("Installation directory: ")
-
-        configure.update(settings)
+        install_dir_name = input("Installation directory: ")
+        install_dir = "volume/" + install_dir_name
+        configure.update(settings, install_dir_name)
     except KeyboardInterrupt:
+        print()
         sys.exit()
 
-    print(settings.substitutions())
     os.makedirs(install_dir)
     os.chdir(install_dir)
 
@@ -32,6 +31,7 @@ def run(args):
             sink = path + '/' + filename
             with open(source, 'r') as f1:
                 with open(sink, 'w') as f2:
+                    print(filename)
                     content = f1.read()
                     template = Template(content)
                     new_content = template.substitute(**settings.substitutions())

@@ -3,9 +3,9 @@
   RewriteEngine on
   ## Load from production if not available locally
   RewriteRule wp-content/uploads/(.*) \
-    https://utulsa.edu/wp-content/uploads/$1 [R=301,NC,L]
+    ${wpe_prod_url}/wp-content/uploads/$$1 [R=301,NC,L]
   RewriteBase /
-  RewriteRule ^index.php$ - [L]
+  RewriteRule ^index.php$$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule . /index.php [L]

@@ -1,0 +1,9 @@
+.git
+.gitignore
+README.md
+Makefile
+
+## Emacs stuff
+*~
+\#*\#
+.\#*
