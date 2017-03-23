@@ -15,14 +15,18 @@ def init_settings():
 
 
 def load_settings(filename):
-    with open(filename, 'w') as f:
-        data = json.loads(f.read())
+    try:
+        with open(filename, 'r') as f:
+            data = json.loads(f.read())
+    except IOError as e:
+        print("Could not find '{}': creating empty settings object.".format(filename))
+        return init_settings()
     return __load_settings(data)
 
 
 def __load_settings(data, settings=None):
-    if not settings:
-        settings = None
+    if settings == None:
+        settings = Settings()
     for key, value in data.items():
         if isinstance(value, dict):
             settings.add_subsetting(key)
@@ -30,6 +34,7 @@ def __load_settings(data, settings=None):
         else:
             settings._data[key] = value
     return settings
+
 
 ## Implementation from http://stackoverflow.com/a/23976949
 class Settings:
@@ -39,7 +44,7 @@ class Settings:
 
     def query(self, key, ask):
         value = ask()
-        while value == None:
+        while value == False:
             value = ask()
         self._data[key] = value
 
@@ -75,13 +80,13 @@ class Settings:
         return items
 
     def save(self, filename):
-        with open(filename, 'w') as f:
+        with open(filename, 'w+') as f:
             f.write(json.dumps(self._json, indent=2))
 
 def ask_yn(question, default='n'):
     result = ""
     while True:
-        result = input(question + ' (y/n)' + (' (default: {})' if default else '') + ': ')
+        result = input(question + ' (y/n)' + (' (default: {})'.format(default) if default else '') + ': ')
         if result == "" and not default or not result in ['y','n']:
             print("Choose either 'y' or 'n'.")
         else:
@@ -122,7 +127,7 @@ def update(settings, default_install_name=None):
     print("## WPENGINE")
     print()
     settings.query('wpe_install_name', _ask_text('Install Name', default_install_name))
-    settings.query('wpe_prod_url', _ask_text('Production URL (include https://)', 'https://' + settings['wpe_install_name'] + '.wpengine.com'))
+    settings.query('wpe_prod_url', _ask_text('Production URL (include https://)', 'http://' + settings['wpe_install_name'] + '.wpengine.com'))
 
     print()
     print("## DOCKER")

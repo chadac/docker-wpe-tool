@@ -2,6 +2,7 @@
 .gitlab-ci.yml
 .gitmodules
 .env
+wpe-config.json
 wp-config-extra.php
 docker-compose.yml
 db/

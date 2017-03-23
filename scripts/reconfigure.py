@@ -10,7 +10,7 @@ def run(args):
     except KeyboardInterrupt:
         sys.exit()
 
-    settings.save()
+    settings.save("/app/volume/wpe-config.json")
 
 
 def help():

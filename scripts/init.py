@@ -19,6 +19,7 @@ def run(args):
 
     os.makedirs(install_dir)
     os.chdir(install_dir)
+    settings.save("wpe-config.json")
 
     for (dirpath, dirnames, filenames) in os.walk("/app/wp-template"):
         path = dirpath[17:]
@@ -31,7 +32,6 @@ def run(args):
             sink = path + '/' + filename
             with open(source, 'r') as f1:
                 with open(sink, 'w') as f2:
-                    print(filename)
                     content = f1.read()
                     template = Template(content)
                     new_content = template.substitute(**settings.substitutions())

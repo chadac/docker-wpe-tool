@@ -1,0 +1,2 @@
+pysftp==0.2.9
+massedit==0.68.1

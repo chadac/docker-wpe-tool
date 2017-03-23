@@ -1,6 +1,6 @@
 ## wpe-tool stuff
 .data/
-wpe-settings.json
+wpe-secrets.json
 
 ## Random mac stuff
 *~

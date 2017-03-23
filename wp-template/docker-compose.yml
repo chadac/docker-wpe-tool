@@ -7,7 +7,7 @@ services:
     environment:
       VIRTUAL_HOST: "${virtual_hosts}"
       DB_HOST: "db"
-      DB_NAME: "db"
+      DB_NAME: "wp"
       DB_USER: "utulsa"
       DB_PASSWORD: "utulsa"
       DB_CHARSET: "${wp_db_charset}"
@@ -32,7 +32,7 @@ services:
       MYSQL_USER: utulsa
       MYSQL_PASSWORD: utulsa
     volumes:
-      - ./db/mysql-reformatted.sql:/docker-entrypoint-initdb.d/mysql.sql
+      - ./.db/mysql.sql:/docker-entrypoint-initdb.d/mysql.sql
     restart: unless-stopped
     network_mode: "bridge"
     deploy:

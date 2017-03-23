@@ -3,7 +3,10 @@
 README.md
 Makefile
 
+## Python stuff
+env
+
 ## Emacs stuff
-*~
-\#*\#
-.\#*
+**/*~
+**/#*\#
+**/.\#*
