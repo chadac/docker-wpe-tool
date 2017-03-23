@@ -51,6 +51,9 @@ wpe-tool import-db <prod|staging>
     print("Replacing with local URL...")
     subprocess.run(["cp", omysql, nmysql])
 
+    # I use sed to do replacement rather than some of the other tools
+    # available since the MySQL files can get very large and Python
+    # doens't seem to have anything for re.sub on large files.
     commands = []
     if settings["wp_multisite_config"] == 'single-site' or settings["wp_multisite_config"] == 'multisite-subfolder':
         local_url = parse.urlparse(settings['virtual_hosts'])
