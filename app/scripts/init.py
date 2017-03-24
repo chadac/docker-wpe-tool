@@ -22,7 +22,7 @@ def run(args):
         init_db()
         init_wp_content()
 
-    print("Finished! Check out '{}' to see your WPEngine installation!")
+    print("Finished!")
 
 
 def create_install_dir(install_dir=None):
