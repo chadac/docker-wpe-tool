@@ -8,8 +8,8 @@ services:
       VIRTUAL_HOST: "${virtual_hosts}"
       DB_HOST: "db"
       DB_NAME: "wp"
-      DB_USER: "utulsa"
-      DB_PASSWORD: "utulsa"
+      DB_USER: "root"
+      DB_PASSWORD: "root"
       DB_CHARSET: "${wp_db_charset}"
       DB_COLLATE: "${wp_db_collate}"
       TABLE_PREFIX: "${wp_table_prefix}"
@@ -20,9 +20,8 @@ services:
       - ./wp-content/debug.log:/var/www/html/wp-content/debug.log
       - ./wp-content/plugins:/var/www/html/wp-content/plugins
       - ./wp-content/themes:/var/www/html/wp-content/themes
-    deploy:
-      restart_policy:
-        condition: none
+      - ./wp-content/uploads:/var/www/html/wp-content/uploads
+    restart: "no"
     network_mode: "bridge"
   db:
     image: mariadb:10
@@ -35,13 +34,12 @@ services:
       - ./.db/mysql.sql:/docker-entrypoint-initdb.d/mysql.sql
     restart: unless-stopped
     network_mode: "bridge"
-    deploy:
-      restart_policy:
-        condition: none
+    restart: "no"
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     links:
       - db:db
     environment:
       VIRTUAL_HOST: "${phpmyadmin_virtual_host}"
+    restart: "no"
     network_mode: "bridge"

@@ -7,11 +7,27 @@ import getpass
 from functools import reduce
 
 
-def init_settings():
-    settings = Settings()
+def init_settings(filename):
+    settings = Settings(filename)
     settings.add_subsetting('prod')
     settings.add_subsetting('staging')
     return settings
+
+
+def init_config():
+    return init_settings('wpe-config.json')
+
+
+def init_secrets():
+    return init_settings('wpe-secrets.json')
+
+
+def load_config():
+    return load_settings('wpe-config.json')
+
+
+def load_secrets():
+    return load_settings('wpe-secrets.json')
 
 
 def load_settings(filename):
@@ -20,8 +36,8 @@ def load_settings(filename):
             data = json.loads(f.read())
     except IOError as e:
         print("Could not find '{}': creating empty settings object.".format(filename))
-        return init_settings()
-    return __load_settings(data)
+        return init_settings(filename)
+    return __load_settings(data, Settings(filename))
 
 
 def __load_settings(data, settings=None):
@@ -38,9 +54,10 @@ def __load_settings(data, settings=None):
 
 ## Implementation from http://stackoverflow.com/a/23976949
 class Settings:
-    def __init__(self, **kwargs):
+    def __init__(self, filename=None):
         self._data = dict()
         self._sub = dict()
+        self.filename = filename
 
     def query(self, key, ask):
         value = ask()
@@ -79,15 +96,15 @@ class Settings:
         items = reduce(lambda x,y: {**x, **y}, [items] + dicts)
         return items
 
-    def save(self, filename):
-        with open(filename, 'w+') as f:
+    def save(self):
+        with open(self.filename, 'w+') as f:
             f.write(json.dumps(self._json, indent=2))
 
 def ask_yn(question, default='n'):
     result = ""
     while True:
         result = input(question + ' (y/n)' + (' (default: {})'.format(default) if default else '') + ': ')
-        if result == "" and not default or not result in ['y','n']:
+        if result == "" and not default or not result in ['y','n','']:
             print("Choose either 'y' or 'n'.")
         else:
             break
@@ -118,16 +135,17 @@ def _ask_choice(name, choices, default=None):
             print("ERROR: Invalid choice. Please give a value in the range 1-{}".format(len(choices)))
             return False
         else:
-            return choices[int(result)]
+            return choices[int(result)-1]
     return ask
 
 
-def update(settings, default_install_name=None):
+def query_config(settings, default_install_name=None):
     print()
     print("## WPENGINE")
     print()
     settings.query('wpe_install_name', _ask_text('Install Name', default_install_name))
-    settings.query('wpe_prod_url', _ask_text('Production URL (include https://)', 'http://' + settings['wpe_install_name'] + '.wpengine.com'))
+    settings.prod.query('url', _ask_text('[Production] URL (include https://)', 'http://' + settings['wpe_install_name'] + '.wpengine.com'))
+    settings.staging.query('url', _ask_text('[Staging] URL (include https://)', 'http://' + settings['wpe_install_name'] + '.staging.wpengine.com'))
 
     print()
     print("## DOCKER")
@@ -155,7 +173,7 @@ def update(settings, default_install_name=None):
     settings.prod.query('git_remote', _ask_text("[Production] Remote URL", "git@git.wpengine.com:production/" + settings['wpe_install_name']))
     settings.staging.query('git_remote', _ask_text("[Staging] Remote URL", "git@git.wpengine.com:staging/" + settings['wpe_install_name']))
 
-def update_secrets(secrets):
+def query_secrets(secrets):
     if ask_yn("Add prod SFTP credentials?"):
         secrets.prod.query('sftp_username', _ask_text("[Production] SFTP Username"))
         secrets.prod.query('sftp_password', _ask_text("[Production] SFTP Password", input_method=getpass.getpass))
