@@ -6,7 +6,7 @@ import glob, re, importlib
 
 def import_scripts():
     scripts = dict()
-    for module_name in ['init', 'reconfigure', 'sftp']:
+    for module_name in ['init', 'reconfigure', 'reset', 'sftp']:
         scripts[module_name] = importlib.import_module('scripts.' + module_name)
     return scripts
 
@@ -17,7 +17,7 @@ usage="""wpe-tool <command> [<args>]
 Commands:
 """
 for command_name, module in scripts.items():
-    usage += "   {:<10}  {}\n".format(command_name, module.short_help())
+    usage += "   {:<15}  {}\n".format(command_name, module.short_help())
 
 parser = argparse.ArgumentParser(
     description="Tool for managing WPEngine installations.",

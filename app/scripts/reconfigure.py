@@ -12,7 +12,7 @@ Commands:
    wpe-config    The wpe-config.json file
    wpe-secrets   The wpe-secrets.json file
 """)
-    parser.add_arguments('config', type=str, help='', default='wpe-config')
+    parser.add_argument('config', type=str, help='', default='wpe-config')
     parsed_args = parser.parse_args(args)
 
     config = parsed_args.config

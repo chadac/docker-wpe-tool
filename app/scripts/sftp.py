@@ -28,7 +28,7 @@ def run(args):
 Commands:
 """
     for name, c in commands.items():
-        usage += "   {:<10}  {}\n".format(name, c['help'])
+        usage += "   {:<15}  {}\n".format(name, c['help'])
 
     parser = argparse.ArgumentParser(
         description="Interacts with WPEngine SFTP servers.",
