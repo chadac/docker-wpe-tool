@@ -70,8 +70,11 @@ def _connect(env, wpe_config=None, wpe_secrets=None):
 
 
 def get_db(args, env):
+    import os
     from lib import configure
     print("Importing database...")
+
+    os.makedirs('/app/volume/.db/')
 
     wpe_config = configure.load_config()
 
@@ -111,7 +114,6 @@ def get_db(args, env):
         ]
     elif wpe_config["wp_multisite_config"] == 'multisite-subdomain':
         local_urls = [parse.urlparse(vh) for vh in wpe_config['virtual_hosts'].split(',')]
-        print(local_urls)
         local_netloc = local_urls[0].path.replace('.', r'\.')
         commands = [
             ["sed", "-i",

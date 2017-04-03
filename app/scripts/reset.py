@@ -25,6 +25,7 @@ def run(args):
             reset_file(filename, substitutions)
 
 def reset_file(filename, substitutions):
+    import os
     from string import Template
     local_file = '/app/volume/' + filename
     template_file = '/app/wp-template/' + filename
@@ -34,6 +35,8 @@ def reset_file(filename, substitutions):
             template = Template(content)
             new_content = template.substitute(**substitutions)
             f2.write(new_content)
+            perms = os.stat(template_file).st_mode
+            os.chmod(local_file, perms)
 
 def reset_all(substitutions):
     import os
@@ -44,5 +47,7 @@ def reset_all(substitutions):
         local_path = '/app/volume/' + path
         if not os.path.exists(local_path):
             os.makedirs(local_path)
+            perms = os.stat(dirpath).st_mode
+            os.chmod(local_path, perms)
         for filename in filenames:
             reset_file(path + '/' + filename, substitutions)

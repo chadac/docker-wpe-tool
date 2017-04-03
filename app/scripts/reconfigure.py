@@ -30,6 +30,7 @@ def wpe_config():
     wpe_config = configure.load_config()
     configure.query_config(wpe_config)
     wpe_config.save()
+    print("Saved to wpe-config.json")
 
 
 def wpe_secrets():
@@ -37,3 +38,4 @@ def wpe_secrets():
     wpe_secrets = configure.load_secrets()
     configure.query_secrets(wpe_secrets)
     wpe_secrets.save()
+    print("Saved to wpe-secrets.json")

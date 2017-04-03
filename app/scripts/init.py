@@ -56,7 +56,9 @@ def export_template(wpe_config):
         if not path:
             path = '.'
         if not os.path.exists(path):
+            perms = os.stat(dirpath).st_mode
             os.makedirs(path)
+            os.chmod(path, perms)
         for filename in filenames:
             source = dirpath + '/' + filename
             sink = path + '/' + filename
@@ -66,6 +68,8 @@ def export_template(wpe_config):
                     template = Template(content)
                     new_content = template.substitute(**substitutions)
                     f2.write(new_content)
+                    perms = os.stat(source).st_mode
+                    os.chmod(sink, perms)
 
 
 def create_wpe_secrets():
