@@ -2,8 +2,9 @@
   Options +FollowSymLinks
   RewriteEngine on
   ## Load from production if not available locally
-  RewriteRule wp-content/uploads/(.*) \
-    ${prod__url}/wp-content/uploads/$$1 [R=301,NC,L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule wp-content/uploads/(.*) \
+      ${prod__url}/wp-content/uploads/$$1 [R=301,NC,L]
   RewriteBase /
   RewriteRule ^index.php$$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-d
