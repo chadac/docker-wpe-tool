@@ -2,7 +2,7 @@ def short_help():
     return "Reruns configuration tool for WPEngine configs."
 
 def run(args):
-    import argparse
+    import argparse, os
 
     parser = argparse.ArgumentParser(
         description=short_help(),
@@ -15,6 +15,7 @@ Commands:
     parser.add_argument('config', type=str, help='', default='wpe-config')
     parsed_args = parser.parse_args(args)
 
+    os.chdir('/app/volume')
     config = parsed_args.config
     if config == 'wpe-config':
         wpe_config()
@@ -27,12 +28,12 @@ Commands:
 def wpe_config():
     from lib import configure
     wpe_config = configure.load_config()
-    configure.update(wpe_config)
+    configure.query_config(wpe_config)
     wpe_config.save()
 
 
 def wpe_secrets():
     from lib import configure
     wpe_secrets = configure.load_secrets()
-    configure.update_secrets(wpe_secrets)
+    configure.query_secrets(wpe_secrets)
     wpe_secrets.save()
