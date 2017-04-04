@@ -7,7 +7,7 @@ def run(args):
     import argparse
     commands = {
         'get-db': {'help': 'Imports and processes the database file', 'c': get_db},
-        'sed-db': {'help': 'Reformats the database based on the wpe-config.json file. Usage: wpe-tool sftp sed-db [original-file] [reformatted-file]', 'c': sed_db},
+        'sed-db': {'help': 'Reformats the database based on the wpe-config.json file.', 'c': sed_db},
         'get-plugins': {'help': 'Imports plugins that are not submodules', 'c': lambda args, env: get_folder('wp-content/plugins', env)},
         'get-themes': {'help': 'Imports themes that are not submodules', 'c': lambda args, env: get_folder('wp-content/themes', env)},
         'get': {'help': 'Get a remote file from the SFTP server', 'c': get},
@@ -24,7 +24,7 @@ def run(args):
             raise argparse.ArgumentTypeError("Invalid environment specified.")
         return name
 
-    usage = """wpe-tool sftp <command> [<args>]
+    usage = """wpe-tool sftp <command> [<additional_args>] [--env]
 
 Commands:
 """
@@ -36,14 +36,16 @@ Commands:
         usage=usage
     )
     parser.add_argument("command", type=command, help="Command to run")
-    parser.add_argument("additional_args", nargs="*", help="Additional arguments")
     parser.add_argument("--env", type=environment, help="WPEngine environment to interact with (default: 'prod')", default='prod')
 
+    h = []
+    if len(args) > 1 and '--help' in args:
+        args = [a for a in args if not a == '--help']
+        h = ['--help']
     parsed_args = parser.parse_args(args)
 
     os.chdir('/app/volume/')
-    parsed_args.command(args[1:], parsed_args.env)
-    print()
+    parsed_args.command(args[1:] + h, parsed_args.env)
 
 
 def _connect(env, wpe_config=None, wpe_secrets=None):
@@ -90,12 +92,21 @@ def get_db(args, env):
 
     sed_db([omysql, nmysql], env)
 
+
 def sed_db(args, env):
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Reformats the database based on the wpe-config.json file.",
+    )
+    parser.add_argument('source', type=str, help="Original mysql file. (default: '.db/mysql.sql.original')", default='.db/mysql.sql.original')
+    parser.add_argument('dest', type=str, help="Reformatted mysql file. (default: '.db/mysql.sql')", default='.db/mysql.msql')
+    parsed_args = parser.parse_args(args)
+
     from lib import configure
     import subprocess
     from urllib import parse
 
-    omysql, nmysql = [args[0], args[1]]
+    omysql, nmysql = [parsed_args.source, parsed_args.dest]
 
     wpe_config = configure.load_config()
 
