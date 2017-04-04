@@ -85,7 +85,7 @@ def get_db(args, env):
 
     print("Pulling mysql.sql from SFTP...")
 
-    with _connect(env, wpe_config) as sftp:
+    with _connect(env) as sftp:
         sftp.get(remotepath='wp-content/mysql.sql', localpath=omysql)
 
     sed_db([omysql, nmysql], env)
