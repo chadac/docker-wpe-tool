@@ -7,6 +7,7 @@ def run(args):
     import argparse
     commands = {
         'get-db': {'help': 'Imports and processes the database file', 'c': get_db},
+        'sed-db': {'help': 'Reformats the database based on the wpe-config.json file. Usage: wpe-tool sftp sed-db [original-file] [reformatted-file]', 'c': sed_db},
         'get-plugins': {'help': 'Imports plugins that are not submodules', 'c': lambda args, env: get_folder('wp-content/plugins', env)},
         'get-themes': {'help': 'Imports themes that are not submodules', 'c': lambda args, env: get_folder('wp-content/themes', env)},
         'get': {'help': 'Get a remote file from the SFTP server', 'c': get},
@@ -35,12 +36,14 @@ Commands:
         usage=usage
     )
     parser.add_argument("command", type=command, help="Command to run")
+    parser.add_argument("additional_args", nargs="*", help="Additional arguments")
     parser.add_argument("--env", type=environment, help="WPEngine environment to interact with (default: 'prod')", default='prod')
 
     parsed_args = parser.parse_args(args)
 
     os.chdir('/app/volume/')
     parsed_args.command(args[1:], parsed_args.env)
+    print()
 
 
 def _connect(env, wpe_config=None, wpe_secrets=None):
@@ -74,20 +77,27 @@ def get_db(args, env):
     from lib import configure
     print("Importing database...")
 
-    os.makedirs('/app/volume/.db/')
-
-    wpe_config = configure.load_config()
+    if not os.path.exists('/app/volume/.db'):
+        os.makedirs('/app/volume/.db/')
 
     omysql = '.db/mysql.sql.original'
     nmysql = '.db/mysql.sql'
 
     print("Pulling mysql.sql from SFTP...")
 
+    with _connect(env, wpe_config) as sftp:
+        sftp.get(remotepath='wp-content/mysql.sql', localpath=omysql)
+
+    sed_db([omysql, nmysql], env)
+
+def sed_db(args, env):
+    from lib import configure
     import subprocess
     from urllib import parse
 
-    with _connect(env, wpe_config) as sftp:
-        sftp.get(remotepath='wp-content/mysql.sql', localpath=omysql)
+    omysql, nmysql = [args[0], args[1]]
+
+    wpe_config = configure.load_config()
 
     print("Reformatting database for local use...")
     subprocess.run(["cp", omysql, nmysql])
@@ -117,11 +127,11 @@ def get_db(args, env):
         local_netloc = local_urls[0].path.replace('.', r'\.')
         commands = [
             ["sed", "-i",
-             r"s/{}:\/\/\([a-zA-Z0-9]\+\.\){}/http:\/\/\1{}/g".format(
+             r"s/{}:\/\/\([a-zA-Z0-9]\+\.\)\?{}/http:\/\/\1{}/g".format(
                  remote_url.scheme, remote_netloc, local_netloc),
              nmysql],
             ["sed", "-i",
-             r"s/\([a-zA-Z0-9]\+\.\){}/\1{}/g".format(
+             r"s/\([a-zA-Z0-9]\+\.\)\?{}/\1{}/g".format(
                  remote_netloc, local_netloc),
              nmysql]
         ]
@@ -129,6 +139,7 @@ def get_db(args, env):
     for command in commands:
         subprocess.run(command)
 
+    print("Done.")
 
 def sftp_get_r(sftp, remote_path, local_path):
     import os
