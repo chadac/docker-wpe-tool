@@ -36,6 +36,7 @@ Commands:
         usage=usage
     )
     parser.add_argument("command", type=command, help="Command to run")
+    parser.add_argument("additional_args", type=str, nargs='*', help="Additional arguments for subcommands.")
     parser.add_argument("--env", type=environment, help="WPEngine environment to interact with (default: 'prod')", default='prod')
 
     h = []
@@ -187,21 +188,21 @@ def get_folder(path, env):
 
 
 def get(args, env):
+    import argparse
     parser = argparse.ArgumentParser(
         description="Gets files/directories from WPEngine SFTP server.",
-        usage=usage
     )
     parser.add_argument('remote_path', type=str, help="File to pull")
-    parser.add_argument('local_path', type=str, help="Location to save file at.", required=False, default=None)
+    parser.add_argument('local_path', type=str, help="Location to save file at.")
     parsed_args = parser.parse_args(args)
 
     remote_path = parsed_args.remote_path
     local_path = parsed_args.local_path if parsed_args.local_path else remote_path
     with _connect(env) as sftp:
         if sftp.isdir(remote_path):
-            sftp_get_r(remote_path, local_path)
+            sftp_get_r(sftp, remote_path, local_path)
         else:
-            sftp.get(remote_path, local_path)
+            sftp.get(sftp, remote_path, local_path)
 
 
 def put(args, env):
