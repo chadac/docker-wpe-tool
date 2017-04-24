@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+## Initializes a new WPEngine install by importing an existing website
+## and saving configuration files.
+
 def short_help():
     return "Creates a new WPEngine install boilerplate."
 
@@ -26,6 +29,7 @@ def run(args):
 
 
 def create_install_dir(install_dir=None):
+    """Creates the new install directory."""
     import os, sys
     if not install_dir:
         try:
@@ -40,6 +44,7 @@ def create_install_dir(install_dir=None):
 
 
 def create_wpe_config(default_install_name=None):
+    """Initializes a WPE config file by querying the user."""
     from lib import configure
     wpe_config = configure.init_config()
     configure.query_config(wpe_config, default_install_name)
@@ -48,6 +53,12 @@ def create_wpe_config(default_install_name=None):
 
 
 def export_template(wpe_config):
+    """Exports the template in wp-template to the install directory.
+
+    Uses Python 3's string templates to do so. See
+    https://docs.python.org/3/library/string.html#template-strings
+
+    """
     import os
     from string import Template
     substitutions = wpe_config.substitutions()
@@ -73,6 +84,7 @@ def export_template(wpe_config):
 
 
 def create_wpe_secrets():
+    """Initializes the wpe-secrets.json file by querying the user."""
     from lib import configure
     wpe_secrets = configure.init_secrets()
     configure.query_secrets(wpe_secrets)
@@ -81,11 +93,13 @@ def create_wpe_secrets():
 
 
 def init_db():
+    """Initializes the database from SFTP."""
     from scripts.sftp import get_db
     get_db([], 'prod')
 
 
 def init_wp_content():
+    """Initializes the wp-content folder from SFTP."""
     from scripts.sftp import get_folder
     get_folder('wp-content/plugins', 'prod')
     get_folder('wp-content/themes', 'prod')

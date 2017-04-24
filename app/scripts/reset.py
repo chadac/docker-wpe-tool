@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+## This is basically a clone of the init.py script.
+
 def short_help():
     return "Resets a file that was previously provisioned using wpe-tool."
 

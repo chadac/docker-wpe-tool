@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 def short_help():
     return "Reruns configuration tool for WPEngine configs."
 
@@ -26,6 +28,7 @@ Commands:
 
 
 def wpe_config():
+    """Updates wpe-config.json."""
     from lib import configure
     wpe_config = configure.load_config()
     configure.query_config(wpe_config)
@@ -34,6 +37,7 @@ def wpe_config():
 
 
 def wpe_secrets():
+    """Updates wpe-secrets.json."""
     from lib import configure
     wpe_secrets = configure.load_secrets()
     configure.query_secrets(wpe_secrets)

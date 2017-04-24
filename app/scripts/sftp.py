@@ -50,6 +50,13 @@ Commands:
 
 
 def _connect(env, wpe_config=None, wpe_secrets=None):
+    """Creates a connection to the SFTP server.
+
+    :param env: Pull from 'staging' or 'prod' servers.
+    :param wpe_config: The wpe_config object. By default, loads from file.
+    :param wpe_secrets: The wpe_secrets object. By default, loads from file.
+    :returns: The PySFTP Connection object.
+    """
     from lib import configure
     import pysftp, warnings
     warnings.filterwarnings("ignore", category=UserWarning, module='pysftp')
@@ -76,6 +83,12 @@ def _connect(env, wpe_config=None, wpe_secrets=None):
 
 
 def get_db(args, env):
+    """Pulls the database from SFTP and runs the associated `sed` commands
+    on it.
+
+    :param args: Should be empty.
+    :param env: The environment to use.
+    """
     import os
     from lib import configure
     print("Importing database...")
@@ -95,6 +108,13 @@ def get_db(args, env):
 
 
 def sed_db(args, env):
+    """Runs `sed` on the database. Note that we do not use internal Python
+    regex functions because many of those cannot be applied in a
+    streaming fashion as `sed` can.
+
+    :param args: Array in the format [source, dest]
+    :param env: Ignored
+    """
     import argparse
     parser = argparse.ArgumentParser(
         description="Reformats the database based on the wpe-config.json file.",
@@ -154,6 +174,10 @@ def sed_db(args, env):
     print("Done.")
 
 def sftp_get_r(sftp, remote_path, local_path):
+    """Helper command to recursively pull files from an SFTP server.
+    Slower than PySFTP, but the syntax isn't confusing.
+
+    """
     import os
     for filename in sftp.listdir(remote_path):
         remote_fpath = os.path.join(remote_path, filename)
@@ -166,6 +190,8 @@ def sftp_get_r(sftp, remote_path, local_path):
 
 
 def get_folder(path, env):
+    """Helper command to recursively update a folder based on the WPEngine
+    remote, while ignoring any folders that are Git repositories."""
     import os, shutil
     print("Selectively downloading folders from remote path '{}'.".format(path))
     with _connect(env) as sftp:
@@ -188,6 +214,7 @@ def get_folder(path, env):
 
 
 def get(args, env):
+    """Pulls content from the SFTP server."""
     import argparse
     parser = argparse.ArgumentParser(
         description="Gets files/directories from WPEngine SFTP server.",
@@ -206,6 +233,7 @@ def get(args, env):
 
 
 def put(args, env):
+    """Puts content onto the SFTP server."""
     parser = argparse.ArgumentParser(
         description="Saves files/directories to the WPEngine SFTP server.",
         usage=usage

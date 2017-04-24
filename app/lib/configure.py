@@ -52,8 +52,9 @@ def __load_settings(data, settings=None):
     return settings
 
 
-## Implementation from http://stackoverflow.com/a/23976949
+## Implementation loosely based on http://stackoverflow.com/a/23976949
 class Settings:
+    """Basic Settings object for general usage. Saves to a file."""
     def __init__(self, filename=None):
         self._data = dict()
         self._sub = dict()
@@ -91,14 +92,26 @@ class Settings:
         return {**self._data, **sub_json}
 
     def substitutions(self, prefix=""):
+        """This is to be used with Python's templating library.
+
+        Syntax:
+          1. If 'key' has a string value, then it can be accessed with {{key}}
+          2. If 'key' is a settings object with a key 'subkey', then it can be accessed with {{key__subkey}}
+        """
         items = dict([(prefix + key, value) for (key, value) in self._data.items()])
         dicts = [value.substitutions(prefix + key + "__") for (key, value) in self._sub.items()]
         items = reduce(lambda x,y: {**x, **y}, [items] + dicts)
         return items
 
     def save(self):
+        """Saves to a file"""
         with open(self.filename, 'w+') as f:
             f.write(json.dumps(self._json, indent=2))
+
+
+################################################################
+## HELPER METHODS
+################################################################
 
 def ask_yn(question, default='n'):
     result = ""
@@ -124,6 +137,13 @@ def _ask_text(name, default=None, input_method=input):
 
 
 def _ask_choice(name, choices, default=None):
+    """Returns a function that will query the user to make a choice from
+    several items.
+
+    :param name: The label to appear before the query.
+    :param choices: List of possible values to return.
+    :param default: The default index choice to use.
+    """
     def ask():
         print("Choices:")
         for index, choice in enumerate(choices):
@@ -138,8 +158,12 @@ def _ask_choice(name, choices, default=None):
             return choices[int(result)-1]
     return ask
 
+################################################################
+## QUERY METHODS
+################################################################
 
 def query_config(settings, default_install_name=None):
+    """Query generates a wpe_config object."""
     print()
     print("## WPENGINE")
     print()
@@ -174,6 +198,7 @@ def query_config(settings, default_install_name=None):
     settings.staging.query('git_remote', _ask_text("[Staging] Remote URL", "git@git.wpengine.com:staging/" + settings['wpe_install_name']))
 
 def query_secrets(secrets):
+    """Generates a wpe_secrets object."""
     if ask_yn("Add prod SFTP credentials?"):
         secrets.prod.query('sftp_username', _ask_text("[Production] SFTP Username"))
         secrets.prod.query('sftp_password', _ask_text("[Production] SFTP Password", input_method=getpass.getpass))
